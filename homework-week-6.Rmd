@@ -2,9 +2,9 @@
 title: "homework-week-6"
 author: "Natalie Robinson"
 date: "October 21, 2017"
-output: html_document
+output:
+  html_document: default
 ---
-
 # Homework 6
 
 **1. Write a simple R function, z.prop.test() that can perform one- or two-sample Z-tests for proportion data**
@@ -93,7 +93,7 @@ ci2
 
 **Using your model, add lines for the 90 percent confidence and prediction interval bands on the plot and add a legend to differentiate between the lines.**
 
-```{r}
+```{r, eval=FALSE}
 # standard plot
 pi <- predict(m1, newdata = data.frame(brain_size = d$Brain_Size_Species_Mean), interval = "prediction", level = 0.90)
 head(pi)
@@ -103,8 +103,8 @@ names(df) <- c("x", "y", "fit", "lwr", "upr")
 
 g <- ggplot(data = df, aes(x = x, y = y)) + geom_point()
 g <- g + geom_smooth(method = "lm", formula = y ~ x)
-g <- g + geom_line(data = df, aes(x = x, y = lwr), colour = "red")
-g <- g + geom_line(data = df, aes(x = x, y = upr), colour = "red")
+g <- g + geom_line(data = df, aes(x = x, y = lwr, colour = "red"))
+g <- g + geom_line(data = df, aes(x = x, y = upr, colour = "red"))
 g <- g + scale_colour_manual("",
                              breaks = c("pi", "ci"),
                              values = c("red", "blue")) #can't figure out how to add a legend
