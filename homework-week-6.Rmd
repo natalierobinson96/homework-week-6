@@ -12,14 +12,32 @@ output:
 ```{r}
 z.prop.test <- function(p1, n1, p2 = NULL, n2 = NULL, p0, alternative = "two.sided", conf.level = 0.95) {
   z <- z.test(x = p1, y = p2, alternative = "two.sided", mu = 0, sigma.x = NULL, sigma.y = NULL, conf.level = 0.95)
-  if (n*p > 5) {
-    return(z, p.value, conf.int)
-  } else {
+  if (n1*p1 > 5) {
+    if (n1 * (1-p1) > 5)
+      return(z, p.value, conf.int)
+} else {
     print("Warning: do not assume normal distribution")
     return(z, p.value, conf.int)
   }
 }
+
+# this code is not correct, I need to work on this more
 ```
+
+Code for one sample Z test (from Module 10)
+
+# one sample Z test
+
+pt <- prop.test(x = sum(v), n = length(v), p = 0.8, conf.level = 0.95, correct = FALSE, 
+    alternative = "less")
+pt
+
+# two sample Z test
+
+pt <- prop.test(x = c(sum(v2), sum(v1)), n = c(length(v2), length(v1)), alternative = "two.sided", 
+    correct = FALSE)
+pt
+
 
 **2. The dataset from Kamilar and Cooper has in it a large number of variables related to life history and body size. For this exercise, the end aim is to fit a simple linear regression model to predict longevity (MaxLongevity_m) measured in months from species’ brain size (Brain_Size_Species_Mean) measured in grams. Do the following for both  longevity~brain size and  log(longevity)~log(brain size).**
 
@@ -93,60 +111,82 @@ ci2
 
 **Using your model, add lines for the 90 percent confidence and prediction interval bands on the plot and add a legend to differentiate between the lines.**
 
-```{r, eval=FALSE}
+```{r, eval = FALSE}
 # standard plot
-pi <- predict(m1, newdata = data.frame(brain_size = d$Brain_Size_Species_Mean), interval = "prediction", level = 0.90)
-head(pi)
+# this should be similar to challenge in module 12
 
-df <- data.frame(cbind(d$Brain_Size_Species_Mean, d$MaxLongevity_m, pi))
-names(df) <- c("x", "y", "fit", "lwr", "upr")
+v = seq(from = 0, to = 500, by = 1)
+m1 <- lm(MaxLongevity_m ~ Brain_Size_Species_Mean, data = d)
+ci <- predict(m1, newdata = data.frame(Brain_Size_Species_Mean = v), interval = "confidence", level = 0.90)
+pi <- predict(m1, newdata = data.frame(Brain_Size_Species_Mean = v), interval = "prediction", level = 0.90)
 
-g <- ggplot(data = df, aes(x = x, y = y)) + geom_point()
-g <- g + geom_smooth(method = "lm", formula = y ~ x)
-g <- g + geom_line(data = df, aes(x = x, y = lwr, colour = "red"))
-g <- g + geom_line(data = df, aes(x = x, y = upr, colour = "red"))
-g <- g + scale_colour_manual("",
-                             breaks = c("pi", "ci"),
-                             values = c("red", "blue")) #can't figure out how to add a legend
-g <- g + geom_text(aes(x = 300, y = 200, label = equation), parse = FALSE)
+df <- data.frame(cbind(v, ci, pi))
+names(df) <- c("Brain_Size_Species_Mean", "CIfit", "CIlwr", "CIupr", "PIfit", "PIlwr", "PIupr")
+head(df) 
+
+slope <- m1$coefficients[2]
+intercept <- m1$coefficients[1]
+equation <- paste("y=", slope, "x", "+", intercept)
+
+g <- ggplot(data = d, aes(x = Brain_Size_Species_Mean, y = MaxLongevity_m)) 
+g <- g + geom_point()
+g <- g + geom_line(data = df, aes(x = v, y = CIfit), colour = "black", lwd = 1)
+g <- g + geom_line(data = df, aes(x = v, y = CIlwr), colour = "blue")
+g <- g + geom_line(data = df, aes(x = v, y = CIupr), colour = "blue")
+g <- g + geom_line(data = df, aes(x = v, y = PIlwr), colour = "red")
+g <- g + geom_line(data = df, aes(x = v, y = PIupr), colour = "red")
+g <- g + geom_text(aes(x = 300, y = 200, label = equation))
+g <- g + geom_text(aes(x = 300, y = 150, label = "blue = CI, red = PI"))
 g
 ```
 Legend: blue = CI, red = PI
 
 ```{r}
 # log plot
-pi2 <- predict(m2, newdata = data.frame(brain_size = log(d$Brain_Size_Species_Mean)), interval = "prediction", level = 0.90)
-head(pi2)
 
-df2 <- data.frame(cbind(log(d$Brain_Size_Species_Mean), log(d$MaxLongevity_m), pi2))
-names(df2) <- c("x", "y", "fit", "lwr", "upr")
+v2 = seq(from = 0, to = 7, by = 1)
+m2 <- lm(log(MaxLongevity_m) ~ log(Brain_Size_Species_Mean), data = d)
+ci2 <- predict(m2, newdata = data.frame(Brain_Size_Species_Mean = v2), interval = "confidence", level = 0.90)
+pi2 <- predict(m2, newdata = data.frame(Brain_Size_Species_Mean = v2), interval = "prediction", level = 0.90)
 
-g <- ggplot(data = df2, aes(x = x, y = y)) + geom_point()
-g <- g + geom_smooth(method = "lm", formula = y ~ x)
-g <- g + geom_line(data = df2, aes(x = x, y = lwr), colour = "red")
-g <- g + geom_line(data = df2, aes(x = x, y = upr), colour = "red")
-g <- g + geom_text(aes(x = 4, y = 4, label = equation2), parse = FALSE)
+df2 <- data.frame(cbind(v2, ci2, pi2))
+names(df2) <- c("Brain_Size_Species_Mean", "CIfit2", "CIlwr2", "CIupr2", "PIfit2", "PIlwr2", "PIupr2")
+head(df2) 
+
+slope2 <- m2$coefficients[2]
+intercept2 <- m2$coefficients[1]
+equation2 <- paste("y=", slope2, "x", "+", intercept2)
+
+g <- ggplot(data = d, aes(x = log(Brain_Size_Species_Mean), y = log(MaxLongevity_m))) 
+g <- g + geom_point()
+g <- g + geom_line(data = df2, aes(x = v2, y = CIfit2), colour = "black", lwd = 1)
+g <- g + geom_line(data = df2, aes(x = v2, y = CIlwr2), colour = "blue")
+g <- g + geom_line(data = df2, aes(x = v2, y = CIupr2), colour = "blue")
+g <- g + geom_line(data = df2, aes(x = v2, y = PIlwr2), colour = "red")
+g <- g + geom_line(data = df2, aes(x = v2, y = PIupr2), colour = "red")
+g <- g + geom_text(aes(x = 4.65, y = 4.65, label = equation2))
+g <- g + geom_text(aes(x = 4.5, y = 4.5, label = "blue = CI, red = PI"))
 g
+# why does this look so weird? Should x min be > 0?
 ```
-Legend: blue = CI, red = PI
 
 **Produce a point estimate and associated 90 percent PI for the longevity of a species whose brain weight is 800 gm. Do you trust the model to predict observations accurately for this value of the explanatory variable? Why or why not?**
 
 ```{r}
 # standard
 
-ci <- predict(m1, data.frame(Brain_Size_Species_Mean = 800), interval = "confidence", level = 0.90)
-ci
+pi <- predict(m1, data.frame(Brain_Size_Species_Mean = 800), interval = "prediction", level = 0.90)
+pi
 ```
 
 ```{r}
 # log
 
-ci2 <- predict(m2, data.frame(log_brain_size = 800), interval = "confidence", level = 0.90)
-ci2           
+pi2 <- predict(m2, data.frame(Brain_Size_Species_Mean = 800), interval = "prediction", level = 0.90)
+pi2           
 ```
 The method used in lm() defaults to ordinary least squares, which creates an equation to tell us how Y varies in response to changes in X. The regression model predicts longevity from brain size. However, I don't think this is the best possible model. Brain size could vary based on longevity, or they could covary. Using other models such as RMA, SMA, or MA could create better predictions. 
 
 **Looking at your two models, which do you think is better? Why?**
 
-I think the log model is better. Graphically, it is easier to look at. The scale of the axes is smaller, and it is easier to see each data point. However, a downside of taking the log of each value is that it makes less sense logically. 
+I think the log model is better. Graphically, it is easier to look at. The scale of the axes is smaller, and it is easier to see each data point. However, a downside of taking the log of each value is that it makes less sense logically. What does the log of brain size, for example, really tell you?
