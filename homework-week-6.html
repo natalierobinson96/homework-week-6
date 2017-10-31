@@ -139,14 +139,10 @@ $(document).ready(function () {
 }
 
 # this code is not correct, I need to work on this more</code></pre>
-<p>Code for one sample Z test (from Module 10)</p>
-</div>
-<div id="one-sample-z-test" class="section level1">
-<h1>one sample Z test</h1>
+<p><strong>Code for one sample Z test (from Module 10)</strong></p>
+<p>one sample Z test:</p>
 <p>pt &lt;- prop.test(x = sum(v), n = length(v), p = 0.8, conf.level = 0.95, correct = FALSE, alternative = “less”) pt</p>
-</div>
-<div id="two-sample-z-test" class="section level1">
-<h1>two sample Z test</h1>
+<p>two sample Z test:</p>
 <p>pt &lt;- prop.test(x = c(sum(v2), sum(v1)), n = c(length(v2), length(v1)), alternative = “two.sided”, correct = FALSE) pt</p>
 <p><strong>2. The dataset from Kamilar and Cooper has in it a large number of variables related to life history and body size. For this exercise, the end aim is to fit a simple linear regression model to predict longevity (MaxLongevity_m) measured in months from species’ brain size (Brain_Size_Species_Mean) measured in grams. Do the following for both longevity~brain size and log(longevity)~log(brain size).</strong></p>
 <pre class="r"><code>library(curl)

@@ -24,15 +24,15 @@ z.prop.test <- function(p1, n1, p2 = NULL, n2 = NULL, p0, alternative = "two.sid
 # this code is not correct, I need to work on this more
 ```
 
-Code for one sample Z test (from Module 10)
+**Code for one sample Z test (from Module 10)**
 
-# one sample Z test
+one sample Z test:
 
 pt <- prop.test(x = sum(v), n = length(v), p = 0.8, conf.level = 0.95, correct = FALSE, 
     alternative = "less")
 pt
 
-# two sample Z test
+two sample Z test:
 
 pt <- prop.test(x = c(sum(v2), sum(v1)), n = c(length(v2), length(v1)), alternative = "two.sided", 
     correct = FALSE)
